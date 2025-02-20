@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { db } from "../db";
+import { cache } from "react";
+import { cookies } from "next/headers";
 
 const DAY_IN_MILLIS = 1000 * 60 * 60 * 24;
 
@@ -66,6 +68,19 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 export async function invalidateAllSessions(userId: string): Promise<void> {
 	await db.delete(sessionTable).where(eq(sessionTable.userId, userId));
 }
+
+export const getCurrentSession = cache(
+	async (): Promise<SessionValidationResult> => {
+		const cookieStore = await cookies();
+
+		const token = cookieStore.get("session")?.value ?? null;
+		if (token === null) {
+			return { session: null, user: null };
+		}
+
+		return await validateSessionToken(token);
+	}
+);
 
 export type SessionValidationResult =
 	| { session: Session; user: User }
