@@ -9,9 +9,5 @@ export default async function Page() {
 	const authorized = await hasPerms(user, ["read:*", "write:*"]);
 	if (!authorized) redirect("/");
 
-	// if (!user || !(await hasPerms(user, ["read:*", "write:*"]))) {
-	// 	redirect("/");
-	// }
-
 	return <h1>You are on the admin page bozo</h1>;
 }
