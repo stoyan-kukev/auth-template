@@ -1,4 +1,7 @@
+import { UserTable } from "@/components/user-table";
 import { getCurrentSession } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { userTable } from "@/lib/db/schema";
 import { hasPerms } from "@/lib/perms";
 import { redirect } from "next/navigation";
 
@@ -9,5 +12,11 @@ export default async function Page() {
 	const authorized = await hasPerms(user, ["read:*", "write:*"]);
 	if (!authorized) redirect("/");
 
-	return <h1>You are on the admin page bozo</h1>;
+	const users = await db.select().from(userTable);
+
+	return (
+		<div>
+			<UserTable users={users} />
+		</div>
+	);
 }
